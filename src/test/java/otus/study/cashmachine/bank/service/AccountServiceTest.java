@@ -2,7 +2,9 @@ package otus.study.cashmachine.bank.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import otus.study.cashmachine.bank.dao.AccountDao;
 import otus.study.cashmachine.bank.data.Account;
 import otus.study.cashmachine.bank.service.impl.AccountServiceImpl;
@@ -12,20 +14,21 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith({MockitoExtension.class})
 public class AccountServiceTest {
 
-    AccountDao accountDao = Mockito.mock(AccountDao.class);
+    @Mock
+    AccountDao accountDao;
 
-    AccountServiceImpl accountServiceImpl = new AccountServiceImpl(accountDao);
+    @InjectMocks
+    AccountServiceImpl accountServiceImpl;
 
-
-    ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
     final Account accountForTests = new Account(1L, new BigDecimal(100));
 
 
     @BeforeEach
     void init() {
-        when(accountDao.getAccount(anyLong())).thenReturn(accountForTests);
+//        when(accountDao.getAccount(anyLong())).thenReturn(accountForTests);
     }
 
     @Test
@@ -39,13 +42,16 @@ public class AccountServiceTest {
     @Test
     void createAccountCaptor() {
 //  @TODO test account creation with ArgumentCaptor
-        when(accountDao.saveAccount(accountCaptor.capture())).then(mock -> accountCaptor.getValue());
-        Account createdAccountTest = accountServiceImpl.createAccount(accountForTests.getAmount());
-        assertEquals(0L, createdAccountTest.getId());
+        ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
+        accountServiceImpl.createAccount(new BigDecimal(100));
+        verify(accountDao).saveAccount(accountCaptor.capture());
+
+        assertEquals(new BigDecimal(100), accountCaptor.getValue().getAmount());
     }
 
     @Test
     void addSum() {
+        when(accountDao.getAccount(anyLong())).thenReturn(accountForTests);
         BigDecimal expectedBalance = new BigDecimal(0);
         BigDecimal accountBalance = accountServiceImpl.getMoney(accountForTests.getId(), accountForTests.getAmount());
 
@@ -54,6 +60,7 @@ public class AccountServiceTest {
 
     @Test
     void getSum() {
+        when(accountDao.getAccount(anyLong())).thenReturn(accountForTests);
         BigDecimal expectedBalance = accountForTests.getAmount().add(accountForTests.getAmount());
         BigDecimal accountBalance = accountServiceImpl.putMoney(accountForTests.getId(), accountForTests.getAmount());
 
@@ -62,11 +69,13 @@ public class AccountServiceTest {
 
     @Test
     void getAccount() {
+        when(accountDao.getAccount(anyLong())).thenReturn(accountForTests);
         assertEquals(accountForTests, accountServiceImpl.getAccount(accountForTests.getId()));
     }
 
     @Test
     void checkBalance() {
+        when(accountDao.getAccount(anyLong())).thenReturn(accountForTests);
         assertEquals(accountForTests.getAmount(), accountServiceImpl.checkBalance(accountForTests.getId()));
     }
 }

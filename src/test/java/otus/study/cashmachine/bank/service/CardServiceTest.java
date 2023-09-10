@@ -1,10 +1,12 @@
 package otus.study.cashmachine.bank.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import otus.study.cashmachine.TestUtil;
 import otus.study.cashmachine.bank.dao.CardsDao;
+import otus.study.cashmachine.bank.data.Account;
 import otus.study.cashmachine.bank.data.Card;
 import otus.study.cashmachine.bank.service.impl.CardServiceImpl;
 
@@ -12,6 +14,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static otus.study.cashmachine.TestUtil.getHash;
 
 public class CardServiceTest {
     AccountService accountService;
